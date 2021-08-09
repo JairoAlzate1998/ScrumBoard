@@ -7,7 +7,7 @@ const roleSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  bdStatus: Boolean,
+  dbStatus: Boolean,
 });
 
 const role = mongoose.model("role", roleSchema);
