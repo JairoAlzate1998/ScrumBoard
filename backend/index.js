@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(cors());
 app.use("/api/role", Role);
 app.use("/api/user", User);
-app.use("/api/login", Auth);
+app.use("/api/auth", Auth);
 app.use("/api/board", Board);
 
 app.listen(process.env.PORT, () => 
