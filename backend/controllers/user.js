@@ -83,9 +83,41 @@ const registerAdmin = async (req, res) => {
   }
 };
 
-const updateUser = async (req, res) => {};
+const updateUser = async (req, res) => {
+  if (!req.body._id || !req.body.name || !req.body.email || !req.body.roleId)
+    return res.status(400).send("Process failed: Incomplete data");
 
-const deleteUser = async (req, res) => {};
+  let pass = "";
+
+  if (req.body.password) {
+    pass = await bcrypt.hash(req.body.password, 10);
+  } else {
+    let userFind = await User.findOne({ email: req.body.email });
+    pass = userFind.password;
+  }
+
+  let user = await User.findByIdAndUpdate(req.body._id, {
+    name: req.body.name,
+    email: req.body.email,
+    password: pass,
+    roleId: req.body.roleId,
+  });
+
+  if (!user) res.status(400).send("Process failed: Error editing user");
+  return res.status(200).send({ user });
+};
+
+const deleteUser = async (req, res) => {
+  if (!req.body._id)
+    return res.status(400).send("Process failed: Incomplete data");
+
+  const user = await User.findByIdAndUpdate(req.body._id, {
+    dbStatus: false,
+  });
+
+  if (!user) return res.status(400).send("Process failed: Error delete user");
+  return res.status(200).send({ user });
+};
 
 module.exports = {
   registerUser,
