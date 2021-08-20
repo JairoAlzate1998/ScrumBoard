@@ -1,5 +1,8 @@
 const Board = require("../models/board");
 const mongoose = require("mongoose");
+const fs = require("fs");
+const path = require("path");
+const moment = require("moment");
 
 const saveTask = async (req, res) => {
   if (!req.body.name || !req.body.description)
@@ -17,6 +20,10 @@ const saveTask = async (req, res) => {
     return res.status(400).send("Process faild: Failed to register task");
   return res.status(200).send({ result });
 };
+
+const saveTaskImg = async (req, res) => {
+
+}
 
 const listTask = async (req, res) => {
   const board = await Board.find({ userId: req.user._id });
@@ -54,4 +61,4 @@ const deleteTask = async (req, res) => {
   return res.status(200).send("Task delete");
 };
 
-module.exports = { saveTask, listTask, updateTask, deleteTask };
+module.exports = { saveTask, listTask, updateTask, deleteTask, saveTaskImg };
