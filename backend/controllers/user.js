@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Role = require("../models/role");
 const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
 
 const registerUser = async (req, res) => {
   if (!req.body.name || !req.body.email || !req.body.password)
@@ -44,7 +45,43 @@ const listUser = async (req, res) => {
   return res.status(200).send({ user });
 };
 
-const registerAdmin = async (req, res) => {};
+const registerAdmin = async (req, res) => {
+  if (
+    !req.body.name ||
+    !req.body.email ||
+    !req.body.password ||
+    !req.body.roleId
+  )
+    return res.status(400).send("Process failes: Incomplete data");
+
+  let validId = await mongoose.Types.ObjectId.isValid(req.body.roleId);
+  if (!validId) return res.status(400).send("Process failed: invalid roleId");
+
+  let existingUser = await User.findOne({ email: req.body.email });
+  if (existingUser)
+    return res
+      .status(400)
+      .send("Process failed: The email user is already registered");
+
+  let hash = await bcrypt.hash(req.body.password, 10);
+
+  let user = new User({
+    name: req.body.name,
+    email: req.body.email,
+    password: hash,
+    roleId: req.body.roleId,
+    dbStatus: true,
+  });
+
+  let result = await user.save();
+  if (!result) return res.status(400).send("Failed to registred user");
+  try {
+    let jwt = user.generateJWT();
+    return res.status(200).send({ jwt });
+  } catch (e) {
+    return res.status(400).send("Failed to registred user");
+  }
+};
 
 const updateUser = async (req, res) => {};
 
